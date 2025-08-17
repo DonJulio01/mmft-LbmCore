@@ -1,7 +1,11 @@
-set(SOURCE_LIST 
-    # TODO
+add_executable(LBMTest
+    test.cpp
 )
 
-target_sources(${TARGET_NAME} PRIVATE ${SOURCE_LIST})
-target_link_libraries(${TARGET_NAME} PUBLIC gtest gtest_main)
-target_link_libraries(${TARGET_NAME} PUBLIC lbmLib)
+target_link_libraries(LBMTest PRIVATE
+    gtest_main
+    lbmLib
+)
+
+include(GoogleTest)
+gtest_discover_tests(LBMTest)

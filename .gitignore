@@ -43,6 +43,7 @@ test.py
 *.vtk
 *.vtm
 *.vti
+*.csv
 
 # Exclude directories
 build/
@@ -52,3 +53,4 @@ external/*/
 images/*
 examples/*
 tmp/
+.idea/*
