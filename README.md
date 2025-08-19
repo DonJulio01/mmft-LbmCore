@@ -1,8 +1,8 @@
 # mmft-LbmCore
 A lightweight 2D LBM (D2Q9, BGK) solver focused on plane Poiseuille flow.
 
-BCs: no-slip walls (bounce-back) at y=0 and y=ny-1, periodic in x
-Driving: constant body force F_x (Guo forcing) to emulate a pressure gradient
+BCs: no-slip walls (bounce-back) at y=0 and y=ny-1, periodic in x  
+Driving: constant body force F_x (Guo forcing) to emulate a pressure gradient  
 Validation: compares simulated velocity profile with analytical parabola
 
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ Validation: compares simulated velocity profile with analytical parabola
 Windows
 ```
 cd mmft-LbmCore
-cmake -B build -A x64 -DCMAKE_BUILD_TYPE=Release
+cmake -B build -A x64 -G "Visual Studio 17 2022"
 cmake --build build --config Release
 ```
 
@@ -27,43 +27,36 @@ The executable is build/Release/MMFTLBM.exe
 -------------------------------------------------------------------------------
 3) Run
 -------------------------------------------------------------------------------
-CLI:
-  MMFTLBM [nx] [ny] [tau] [u_max] [steps]
+**CLI:** MMFTLBM [w_phys] [nu_phys] [rho_phys] [u_max_phys] [u_max_lu] [nx] [ny] [steps] 
 
-Defaults:
-  nx=100  ny=50  tau=0.7  u_max=0.05  steps=10000
+Arguments:
+
+  w_phys     — channel width [m]  
+  nu_phys    — kinematic viscosity [m²/s]  
+  rho_phys   — density [kg/m³] (currently unused)  
+  u_max_phys — target peak velocity [m/s]  
+  u_max_lu   — target peak velocity in lattice units (for numerical stability)  
+  nx, ny     — lattice size in x (streamwise) and y (wall-normal) directions  
+  steps      — number of time steps
 
 Example:
-``.\build\Release\MMFTLBM.exe 100 50 0.7 0.05 20000``
+```.\build\Release\MMFTLBM.exe 0.01 1.0e-6 1000 0.05 0.10 100 50 20000```
 
-Output
-  velocity_profile.csv — two columns: y_index, u_x(y) at x = nx/2
-
--------------------------------------------------------------------------------
-4) Parameters
--------------------------------------------------------------------------------
-- nx, ny — lattice size in x (streamwise) and y (wall-normal) direction.
-- tau — BGK relaxation time. Kinematic viscosity in lattice units: nu = (tau - 0.5)/3.
-        Must satisfy tau > 0.5 for stability.
-- u_max — target peak velocity of the analytical Poiseuille parabola.
-- steps — number of time steps.
-
-Body force computed internally:
-  H   = ny - 1
-  nu  = (tau - 0.5)/3
-  F_x = 8 * nu * u_max / H^2
+Output:
+  velocity_profile.csv  
+  Two columns: y [m] (vertical position), u_x(y) [m/s] at x = nx/2 (streamwise flow speed)
 
 Analytical profile:
-  u_exact(y) = 4 * u_max * (y/H) * (1 - y/H),  y = 0..H
+  u_exact(y) = 4 * u_max_phys * (y/w) * (1 – y/w),  y ∈ [0, w]
 
 -------------------------------------------------------------------------------
-5) Tests
+4) Tests
 -------------------------------------------------------------------------------
 Build & run tests
 
 Windows:
 ```
-cmake -B build -G "Visual Studio 17 2022" -A x64 -DTEST=ON
+cmake -B build -A x64 -G "Visual Studio 17 2022" -DTEST=ON
 cmake --build build --config Release
 ctest --test-dir build -C Release --verbose
 ```

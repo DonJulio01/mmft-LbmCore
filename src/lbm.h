@@ -31,7 +31,7 @@ public:
     void run();
 
     /** Write the velocity profile to csv. */
-    void writeVelocityProfile(const std::string &filename) const;
+    void writeVelocityProfile(const std::string &filename, double dx, double Cu) const;
 
     /**
      * Compute an L2–norm error between the simulated velocity profile and

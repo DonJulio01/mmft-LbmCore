@@ -156,7 +156,7 @@ void Solver::run() {
     }
 }
 
-void Solver::writeVelocityProfile(const std::string &filename) const {
+void Solver::writeVelocityProfile(const std::string &filename, double dx, double Cu) const {
     std::ofstream out(filename);
     if (!out) {
         std::cerr << "Failed to open " << filename << " for writing\n";
@@ -166,7 +166,7 @@ void Solver::writeVelocityProfile(const std::string &filename) const {
     std::size_t x = nx_ / 2;
     for (std::size_t y = 0; y < ny_; ++y) {
         double ux = uX_[y * nx_ + x];
-        out << y << "," << ux << "\n";
+        out << (y * dx) << "," << (ux * Cu) << "\n";
     }
     out.close();
 }
