@@ -1,5 +1,6 @@
 set(LBM_SOURCES
     lbm.cpp
+    lbm.h
 )
 
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})

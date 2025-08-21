@@ -6,42 +6,31 @@
 
 namespace lbm {
 
-/** D2Q9 LBM (BGK) for 2D Poiseuille. No-slip at y=0,ny-1; periodic in x; body force in x. */
+/** D2Q9 BGK solver for 2D Poiseuille. No-slip at y=0,ny-1. Zou/He inlet (u_x) and outlet (rho). */
 class Solver {
 public:
     /**
-     * Construct a lattice Boltzmann solver.
-     *
-     * @param nx Number of lattice nodes in the x (streamwise) direction.
-     * @param ny Number of lattice nodes in the y (wall–normal) direction.
-     * @param tau Relaxation time controlling the kinematic viscosity via
-     *            nu = (tau-0.5)/3.  Values must satisfy tau > 0.5 for
-     *            stability.
-     * @param force_x Constant body force in lattice units acting along x.
-     * @param u_max Desired maximum velocity used for analytical reference.
-     * @param steps Number of time steps to simulate.
+     * Create LBM Solver.
+     * @param nx Lattice size in x.
+     * @param ny Lattice size in y.
+     * @param tau Relaxation time (tau>0.5).
+     * @param u_max Peak parabolic inlet speed.
+     * @param steps Time steps to run.
+     * @param rho_out_lu Outlet density in lattice units.
      */
-    Solver(std::size_t nx, std::size_t ny, double tau,
-           double force_x, double u_max, std::size_t steps);
+    Solver(std::size_t nx, std::size_t ny, double tau, double u_max, std::size_t steps, double rho_out_lu = 1.0);
 
     /**
-     * Run the time stepping loop.  Distributions are initialised to
-     * equilibrium at rest before integration.
+     * Run the time stepping loop.
      */
     void run();
 
-    /** Write the velocity profile to csv. */
+    /** Write u_x(y) at x=nx/2 to CSV. dx is spacing; Cu converts to physical if >0. */
     void writeVelocityProfile(const std::string &filename, double dx, double Cu) const;
 
     /**
-     * Compute an L2–norm error between the simulated velocity profile and
-     * the analytical Poiseuille profile.  The analytical profile is
-     * defined as u(y) = 4 * u_max * (y/H) * (1 - y/H), where H is the
-     * number of lattice spacings across the channel minus one.  Only the
-     * x–component of the velocity is compared.
-     *
-     * @return The root mean square error of u_x compared to the analytic
-     *         solution.
+     * L2 error vs u(y)=4*u_max*(y/H)*(1-y/H) using u_x.
+     * @return RMS error.
      */
     double computeError() const;
 
@@ -50,9 +39,9 @@ private:
     std::size_t ny_;
     double tau_;
     double nu_;
-    double force_x_;
     double u_max_;
     std::size_t steps_;
+    double rho_out_;
 
     // Discrete velocity directions for the D2Q9 scheme
     inline static constexpr int dirX_[9]  = {0, 1, 0, -1,  0, 1, -1, -1,  1};
@@ -75,18 +64,14 @@ private:
 
     /**
      * Initialise the simulation state.  Density is set to unity and
-     * velocities are zero so that the equilibrium distribution can be
-     * computed accordingly.
+     * velocities are zero.
      */
     void initialiseFields();
 
     /**
-     * Perform the streaming step.  The source and destination buffers
-     * must be distinct.  Periodicity along x is handled implicitly and
-     * bounce–back is applied for nodes on the top and bottom boundaries.
-     *
-     * @param src Source distribution array to stream from.
-     * @param dest Destination distribution array to stream into.
+     * Pull streaming with bounce-back; Zou/He inlet (u_x) and outlet (rho).
+     * @param src Source distributions.
+     * @param dest Destination distributions.
      */
     void stream(const std::vector<double> &src, std::vector<double> &dest);
 
@@ -98,11 +83,8 @@ private:
     void computeMacroscopic(const std::vector<double> &f);
 
     /**
-     * Perform the collision step using the BGK operator and include a
-     * forcing term in the x direction.  The distribution is updated in
-     * place.
-     *
-     * @param f Distribution array to relax towards equilibrium and apply forcing.
+     * BGK collision in place.
+     * @param f Distributions to relax.
      */
     void collide(std::vector<double> &f);
 };

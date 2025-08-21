@@ -1,8 +1,7 @@
 # mmft-LbmCore
 A lightweight 2D LBM (D2Q9, BGK) solver focused on plane Poiseuille flow.
 
-BCs: no-slip walls (bounce-back) at y=0 and y=ny-1, periodic in x  
-Driving: constant body force F_x (Guo forcing) to emulate a pressure gradient  
+BCs: no-slip walls (bounce-back) at y=0 and y=ny-1, inlet/outlet boundary conditions in x.     
 Validation: compares simulated velocity profile with analytical parabola
 
 -------------------------------------------------------------------------------
@@ -40,7 +39,8 @@ Arguments:
   steps      — number of time steps
 
 Example:
-```.\build\Release\MMFTLBM.exe 0.01 1.0e-6 1000 0.05 0.10 100 50 20000```
+
+```.\build\Release\MMFTLBM.exe 0.01 1.0e-5 1000 0.05 0.05 100 50 20000```
 
 Output:
   velocity_profile.csv  

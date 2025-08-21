@@ -30,33 +30,35 @@ int main(int argc, char const* argv[]) {
 
     if (!(w_phys  > 0.0)) { std::cerr << "w_phys must be > 0\n"; return EXIT_FAILURE; }
     if (!(nu_phys > 0.0)) { std::cerr << "nu_phys must be > 0\n"; return EXIT_FAILURE; }
-    if (!(rho_phys> 0.0)) { std::cerr << "rho_phys must be > 0\n"; return EXIT_FAILURE; }
+    if (!(rho_phys > 0.0)) { std::cerr << "rho_phys must be > 0\n"; return EXIT_FAILURE; }
     if (!(u_max_p > 0.0)) { std::cerr << "u_max_phys must be > 0\n"; return EXIT_FAILURE; }
     if (!(u_max_lu > 0.0 && u_max_lu < 0.2)) { std::cerr << "u_max_lu must be in (0,0.2)\n"; return EXIT_FAILURE; }
     if (nx < 8) { std::cerr << "nx too small (<8)\n"; return EXIT_FAILURE; }
     if (ny <= 2) { std::cerr << "ny must be > 2\n"; return EXIT_FAILURE; }
     if (!(steps > 0)) { std::cerr << "steps must be > 0\n"; return EXIT_FAILURE; }
 
-    const double H  = static_cast<double>(ny - 2);                        // numer of cells in y-direction
-    const double dx = w_phys / H;                                         // lattice spacing (in m)
-    const double dt = u_max_lu * dx / u_max_p;                            // time step (in s)
-    const double Cu = dx / dt;                                            // conversion factor for velocity
-    const double nu_lu = nu_phys * dt / (dx * dx);                        // kinematic viscosity in lattice units
-    const double tau = 0.5 + 3.0 * nu_lu;                                 // relaxation time
+    const double H  = static_cast<double>(ny - 2);                                      // number of cells in y-direction
+    const double dx = w_phys / H;                                                       // lattice spacing (in m)
+    const double dt = u_max_lu * dx / u_max_p;                                          // time step (in s)
+    const double Cu = dx / dt;                                                          // conversion factor for velocity
+    const double nu_lu = nu_phys * dt / (dx * dx);                                      // kinematic viscosity in lattice units
+    const double tau = 0.5 + 3.0 * nu_lu;                                               // relaxation time
 
-    const double mu_phys    = rho_phys * nu_phys;                         // dynamic viscosity
-    const double dpdx_phys  = 8.0 * mu_phys * u_max_p / (w_phys*w_phys);  // pressure gradient (from analytical Poiseuille solution)
-    const double g_phys     = dpdx_phys / rho_phys;                       // body acceleration
-    const double force_x = g_phys * (dt * dt / dx);                       // convert to lattice units
+    const double mu_phys = rho_phys * nu_phys;                                          // dynamic viscosity
+    const double L_phys = static_cast<double>(nx) * dx;                                 // channel length
+    const double dpdx_phys = -8.0 * mu_phys * u_max_p / (w_phys * w_phys);              // pressure gradient in the x-direction
+    const double rho_out_lu = 1.0 + 3.0 * (dpdx_phys * L_phys) / (rho_phys * Cu * Cu);  // outlet density in lattice units
+
+    if (!(rho_out_lu < 1.05 && rho_out_lu > 0.95)) { std::cerr << "rho_out_lu must be > 0.95 and < 1.05\n"; return EXIT_FAILURE; }
 
     std::cout << "Simulation parameters: nx=" << nx << ", ny=" << ny
               << ", tau=" << tau << ", u_max_lu=" << u_max_lu
               << ", steps=" << steps
-              << ", force_x = " << force_x
-              << ", dx=" << dx << " [m], dt=" << dt << " [s], Cu=dx/dt=" << Cu << " [m/s per lu]" << std::endl;
+              << ", dx=" << dx << " [m], dt=" << dt << " [s], Cu=dx/dt=" << Cu << " [m/s per lu]"
+              << ", rho_out_lu=" << rho_out_lu << std::endl;
 
     try {
-        lbm::Solver solver(nx, ny, tau, force_x, u_max_lu, steps);
+        lbm::Solver solver(nx, ny, tau, u_max_lu, steps, rho_out_lu);
         solver.run();
         // Write the resulting velocity profile to disk
         solver.writeVelocityProfile("velocity_profile.csv", dx, Cu);
