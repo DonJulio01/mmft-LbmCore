@@ -32,7 +32,7 @@ Arguments:
 
   w_phys     — channel width [m]  
   nu_phys    — kinematic viscosity [m²/s]  
-  rho_phys   — density [kg/m³]
+  rho_phys   — density [kg/m³]  
   u_max_phys — target peak velocity [m/s]  
   u_max_lu   — target peak velocity in lattice units (for numerical stability)  
   nx, ny     — lattice size in x (streamwise) and y (wall-normal) directions  
