@@ -26,7 +26,7 @@ The executable is build/Release/MMFTLBM.exe
 -------------------------------------------------------------------------------
 3) Run
 -------------------------------------------------------------------------------
-**CLI:** MMFTLBM [w_phys] [nu_phys] [rho_phys] [u_max_phys] [u_max_lu] [nx] [ny] [steps] 
+**CLI:** MMFTLBM [w_phys] [nu_phys] [rho_phys] [u_max_phys] [tau] [nx] [ny] [steps] 
 
 Arguments:
 
@@ -34,13 +34,13 @@ Arguments:
   nu_phys    — kinematic viscosity [m²/s]  
   rho_phys   — density [kg/m³]  
   u_max_phys — target peak velocity [m/s]  
-  u_max_lu   — target peak velocity in lattice units (for numerical stability)  
+  tau        — relaxation time  
   nx, ny     — lattice size in x (streamwise) and y (wall-normal) directions  
   steps      — number of time steps
 
 Example:
 
-```.\build\Release\MMFTLBM.exe 0.01 1.0e-5 1000 0.05 0.05 100 50 20000```
+```.\build\Release\MMFTLBM.exe 0.01 1.0e-5 1000 0.05 0.8 100 50 20000```
 
 Output:
   velocity_profile.csv  

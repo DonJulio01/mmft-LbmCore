@@ -7,14 +7,14 @@
 
 namespace lbm {
 
-Solver::Solver(std::size_t nx, std::size_t ny, double tau, double u_max, std::size_t steps, double rho_out_lu):
+Solver::Solver(std::size_t nx, std::size_t ny, double tau, double u_max_lu, std::size_t steps, double rho_out_lu):
       nx_(nx), ny_(ny), tau_(tau),
       nu_((tau - 0.5) / 3.0),
-      u_max_(u_max), steps_(steps), rho_out_(rho_out_lu),
+      u_max_(u_max_lu), steps_(steps), rho_out_(rho_out_lu),
       f1_(nx * ny * 9, 0.0), f2_(nx * ny * 9, 0.0),
       rho_(nx * ny, 1.0), uX_(nx * ny, 0.0), uY_(nx * ny, 0.0) {
     // Ensure stability requirements.
-    if (tau <= 0.5) {
+    if (tau <= 0.5 || tau >= 2.0) {
         throw std::invalid_argument("Relaxation time tau must be greater than 0.5");
     }
 }
